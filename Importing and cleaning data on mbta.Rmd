@@ -1,0 +1,85 @@
+---
+title: "Importing and Cleaning data"
+author: "Huruy Belay"
+date: "May 19, 2017"
+output: html_document
+---
+
+## Using readxl
+
+##### Required libraries
+
+```{r, results='hide'}
+library(readxl)
+library(tidyr)
+```
+
+##### Importing the data
+
+```{r, results='hide'}
+mbta <- read_excel("mbta.xlsx", skip = 1)
+head(mbta)
+```
+
+* **None**: skiped the first raw of the data
+
+##### Examining the data
+
+```{r, results='hide'}
+str(mbta)
+head(mbta)
+summary(mbta)
+```
+
+##### Removing unnecessary rows and columns
+
+```{r}
+mbta1 <- mbta[-c(1,7,11), -1]
+head(mbta1)
+```
+
+**Note:**
+     * Removed rows 1,7 and 11.
+     * Removed column 1.
+
+##### Observations are stored in columns
+
+If you see the data there are observations are stored in columns and we should fix this using the gather function from the tidyr package.
+
+```{r}
+mbta2 <- gather(mbta1, month, thou_riders, -mode)
+head(mbta2)
+```
+
+At this time thins are ok nice. However, we should check the structure of the variables. The thou_riders variable should be numeric.
+
+```{r}
+mbta2$thou_riders <- as.numeric(mbta2$thou_riders)
+```
+
+##### Variables are stored in both rows and columns
+
+If you look the data again, variables are stored in both rows and columns. We should fix this also using one of the tidyr packages.
+
+```{r}
+mbta3 <- spread(mbta2, mode, thou_riders)
+head(mbta3)
+```
+
+The data looks better, but one thing should fix. We should separate the variable 'r month' in to year and month.
+
+```{r}
+mbta4 <- separate(mbta3, month, c("year", "month"))
+head(mbta4)
+```
+
+Finally we can start analysis. But alwayse before analysis, it is good to screen our data using some of the data sceenings.
+
+```{r}
+summary(mbta4)
+
+hist(mbta4$Bus)
+```
+
+
+**Note:** I used this data from the Datacamp.
